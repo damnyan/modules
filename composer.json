@@ -1,7 +1,7 @@
 {
-    "name": "caffeinated/modules",
+    "name": "damnyan/modules",
     "description": "Laravel 5 Modules",
-    "keywords": ["modules", "laravel", "caffeinated"],
+    "keywords": ["modules", "laravel", "caffeinated", "damnyan"],
     "license": "MIT",
     "authors": [
         {

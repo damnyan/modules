@@ -1,0 +1,15 @@
+<?php
+
+namespace {{path}}\{{namespace}}\Gateways;
+
+use {{path}}\{{namespace}}\Interfaces\{{namespace}}Interface as Repository;
+
+class {{namespace}}Gateway
+{
+  protected $repository;
+
+  public function __construct(Repository $repository)
+  {
+    $this->repository = $repository;
+  }
+}

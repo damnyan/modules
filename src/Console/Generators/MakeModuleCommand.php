@@ -35,11 +35,16 @@ class MakeModuleCommand extends Command
 		'Database/',
 		'Database/Migrations/',
 		'Database/Seeds/',
+        'Gateways/',
+        'Interfaces/',
 		'Http/',
 		'Http/Controllers/',
 		'Http/Middleware/',
 		'Http/Requests/',
+        'Models/',
 		'Providers/',
+        'Repositories/',
+        'Repositories/Eloquent/',
 		'Resources/',
 		'Resources/Lang/',
 		'Resources/Views/',
@@ -52,9 +57,14 @@ class MakeModuleCommand extends Command
 	 */
 	protected $moduleFiles = [
 		'Database/Seeds/{{namespace}}DatabaseSeeder.php',
+        'Gateways/{{namespace}}Gateway.php',
 		'Http/routes.php',
-		'Providers/{{namespace}}ServiceProvider.php',
+        'Interfaces/{{namespace}}Interface.php',
+        'Models/{{namespace}}.php',
+        'Providers/{{namespace}}ServiceProvider.php',
+		'Providers/RepositoryServiceProvider.php',
 		'Providers/RouteServiceProvider.php',
+        'Repositories/Eloquent/{{namespace}}Repository.php',
 		'module.json'
 	];
 
@@ -65,9 +75,14 @@ class MakeModuleCommand extends Command
 	 */
 	protected $moduleStubs = [
 		'seeder.stub',
+        'gateway.stub',
 		'routes.stub',
+        'interface.stub',
+        'model.stub',
 		'moduleserviceprovider.stub',
+        'repositoryserviceprovider.stub',
 		'routeserviceprovider.stub',
+        'repository.stub',
 		'manifest.stub'
 	];
 
