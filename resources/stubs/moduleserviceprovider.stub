@@ -1,4 +1,5 @@
 <?php
+
 namespace {{path}}\{{namespace}}\Providers;
 
 use App;

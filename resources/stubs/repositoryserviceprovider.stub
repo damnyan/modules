@@ -1,4 +1,5 @@
 <?php
+
 namespace {{path}}\{{namespace}}\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -8,27 +9,27 @@ use {{path}}\{{namespace}}\Repositories\Eloquent\{{namespace}}Repository;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
-  /**
-   * Define your module's repository model bindings, pattern filters, etc.
-   *
-   * @return void
-   */
-  public function boot()
-  {
-    //
-  }
+    /**
+    * Define your module's repository model bindings, pattern filters, etc.
+    *
+    * @return void
+    */
+    public function boot()
+    {
+        //
+    }
 
-  /**
-   * Register bindings in the container.
-   *
-   * @return void
-   */
-  public function register()
-  {
-    $app = $this->app;
+    /**
+    * Register bindings in the container.
+    *
+    * @return void
+    */
+    public function register()
+    {
+        $app = $this->app;
 
-    $app->bind({{namespace}}Interface::class, function ($app) {
-        return new {{namespace}}Repository(new {{namespace}});
-    });
-  }
+        $app->bind({{namespace}}Interface::class, function ($app) {
+           return new {{namespace}}Repository(new {{namespace}});
+        });
+    }
 }
