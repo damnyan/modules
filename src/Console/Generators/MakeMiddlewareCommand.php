@@ -4,7 +4,7 @@ namespace Caffeinated\Modules\Console\Generators;
 
 class MakeMiddlewareCommand extends MakeCommand
 {
-	/**
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -30,43 +30,45 @@ class MakeMiddlewareCommand extends MakeCommand
     /**
      * Module folders to be created.
      *
-	 * @var array
-	 */
-	protected $listFolders = [
-		'Http/Middleware/'
-	];
+     * @var array
+     */
+    protected $listFolders = [
+        'Http/Middleware/',
+    ];
 
-	/**
+    /**
      * Module files to be created.
      *
-	 * @var array
-	 */
-	protected $listFiles = [
-		'{{filename}}.php'
-	];
+     * @var array
+     */
+    protected $listFiles = [
+        '{{filename}}.php',
+    ];
 
-	/**
+    /**
      * Module stubs used to populate defined files.
      *
-	 * @var array
-	 */
-	protected $listStubs = [
-		'default' => [
-			'middleware.stub'
-		]
-	];
+     * @var array
+     */
+    protected $listStubs = [
+        'default' => [
+            'middleware.stub',
+        ],
+    ];
 
-	/**
-     * Resolve Container after getting file path
-     * 
-     * @param  string $FilePath
-     * @return Array
+    /**
+     * Resolve Container after getting file path.
+     *
+     * @param string $FilePath
+     *
+     * @return array
      */
     protected function resolveByPath($filePath)
     {
-    	$this->container['filename']   = $this->makeFileName($filePath);
-        $this->container['namespace']  = $this->getNamespace($filePath);
-        $this->container['classname']  = basename($filePath);
+        $this->container['filename'] = $this->makeFileName($filePath);
+        $this->container['namespace'] = $this->getNamespace($filePath);
+        $this->container['path'] = $this->getBaseNamespace();
+        $this->container['classname'] = basename($filePath);
     }
 
     /**
@@ -79,13 +81,15 @@ class MakeMiddlewareCommand extends MakeCommand
         return str_replace(
             [
                 '{{filename}}',
-                '{{namespace}}', 
-                '{{classname}}'
+                '{{path}}',
+                '{{namespace}}',
+                '{{classname}}',
             ],
             [
-                $this->container['filename'], 
-                $this->container['namespace'], 
-                $this->container['classname']
+                $this->container['filename'],
+                $this->container['path'],
+                $this->container['namespace'],
+                $this->container['classname'],
             ],
             $content
         );

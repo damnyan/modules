@@ -1,13 +1,12 @@
 <?php
 
-namespace {{namespace}};
+namespace {{path}}\{{namespace}};
 
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
 
 class {{classname}} extends Seeder
 {
-	
 	/**
 	 * Run the database seeds.
 	 *
@@ -17,5 +16,4 @@ class {{classname}} extends Seeder
 	{
 		//
 	}
-
 }

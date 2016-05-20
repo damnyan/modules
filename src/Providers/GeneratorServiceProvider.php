@@ -1,4 +1,5 @@
 <?php
+
 namespace Caffeinated\Modules\Providers;
 
 use Illuminate\Support\ServiceProvider;
@@ -7,8 +8,6 @@ class GeneratorServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
     public function boot()
     {
@@ -17,8 +16,6 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
     public function register()
     {
@@ -33,12 +30,10 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the make:module:controller command.
-     *
-     * @return void
      */
     private function registerMakeControllerCommand()
     {
-        $this->app->singleton('command.make.module.controller', function($app) {
+        $this->app->singleton('command.make.module.controller', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeControllerCommand'];
         });
 
@@ -47,12 +42,10 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the make:module:middleware command.
-     *
-     * @return void
      */
     private function registerMakeMiddlewareCommand()
     {
-        $this->app->singleton('command.make.module.middleware', function($app) {
+        $this->app->singleton('command.make.module.middleware', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeMiddlewareCommand'];
         });
 
@@ -60,13 +53,11 @@ class GeneratorServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the make:module command.
-     *
-     * @return void
+     * Register the make:module:migration command.
      */
     private function registerMakeMigrationCommand()
     {
-        $this->app->singleton('command.make.module.migration', function($app) {
+        $this->app->singleton('command.make.module.migration', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeMigrationCommand'];
         });
 
@@ -75,12 +66,10 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the make:module:model command.
-     *
-     * @return void
      */
     private function registerMakeModelCommand()
     {
-        $this->app->singleton('command.make.module.model', function($app) {
+        $this->app->singleton('command.make.module.model', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeModelCommand'];
         });
 
@@ -89,12 +78,10 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the make:module command.
-     *
-     * @return void
      */
     private function registerMakeModuleCommand()
     {
-        $this->app->singleton('command.make.module', function($app) {
+        $this->app->singleton('command.make.module', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeModuleCommand'];
         });
 
@@ -103,12 +90,10 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the make:module:request command.
-     *
-     * @return void
      */
     private function registerMakeRequestCommand()
     {
-        $this->app->singleton('command.make.module.request', function($app) {
+        $this->app->singleton('command.make.module.request', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeRequestCommand'];
         });
 
@@ -117,12 +102,10 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Register the make:module:seeder command.
-     *
-     * @return void
      */
     private function registerMakeSeederCommand()
     {
-        $this->app->singleton('command.make.module.seeder', function($app) {
+        $this->app->singleton('command.make.module.seeder', function ($app) {
             return $app['Caffeinated\Modules\Console\Generators\MakeSeederCommand'];
         });
 

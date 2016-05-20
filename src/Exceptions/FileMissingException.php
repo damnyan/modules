@@ -1,4 +1,7 @@
 <?php
+
 namespace Caffeinated\Modules\Exceptions;
 
-class FileMissingException extends \Exception {}
+class FileMissingException extends \Exception
+{
+}
