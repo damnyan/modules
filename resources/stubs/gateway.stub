@@ -3,6 +3,7 @@
 namespace {{path}}\{{namespace}}\Gateways;
 
 use {{path}}\{{namespace}}\Interfaces\{{namespace}}Interface as Repository;
+use App\Services\ApiResponse;
 
 class {{namespace}}Gateway
 {

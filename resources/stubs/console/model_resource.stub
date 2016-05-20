@@ -4,7 +4,7 @@ namespace {{namespace}};
 
 use App\Abstracts\AbstractModel as Model;
 
-class {{classname}} extends Model
+class {{namespace}} extends Model
 {
     //
 }

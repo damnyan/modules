@@ -78,7 +78,7 @@ class MakeModuleCommand extends Command
         'gateway.stub',
 		'routes.stub',
         'interface.stub',
-        'model.stub',
+        'model_resource.stub',
 		'moduleserviceprovider.stub',
         'repositoryserviceprovider.stub',
 		'routeserviceprovider.stub',
