@@ -39,14 +39,14 @@ class ModuleMigrateRefreshCommand extends Command
         $slug = $this->argument('slug');
 
         $this->call('module:migrate:reset', [
-            'slug' => $slug,
+            'slug'       => $slug,
             '--database' => $this->option('database'),
-            '--force' => $this->option('force'),
-            '--pretend' => $this->option('pretend'),
+            '--force'    => $this->option('force'),
+            '--pretend'  => $this->option('pretend'),
         ]);
 
         $this->call('module:migrate', [
-            'slug' => $slug,
+            'slug'       => $slug,
             '--database' => $this->option('database'),
         ]);
 
@@ -55,6 +55,10 @@ class ModuleMigrateRefreshCommand extends Command
         }
 
         if (isset($slug)) {
+            $module = $this->laravel['modules']->where('slug', $slug);
+
+            event($slug.'.module.refreshed', [$module, $this->option()]);
+
             $this->info('Module has been refreshed.');
         } else {
             $this->info('All modules have been refreshed.');
@@ -79,7 +83,7 @@ class ModuleMigrateRefreshCommand extends Command
     protected function runSeeder($slug = null, $database = null)
     {
         $this->call('module:seed', [
-            'slug' => $slug,
+            'slug'       => $slug,
             '--database' => $database,
         ]);
     }

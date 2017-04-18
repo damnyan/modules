@@ -3,12 +3,12 @@
 namespace Caffeinated\Modules\Console\Commands;
 
 use Caffeinated\Modules\Modules;
-use Illuminate\Console\ConfirmableTrait;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
+use Illuminate\Console\ConfirmableTrait;
+use Illuminate\Database\Migrations\Migrator;
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class ModuleMigrateResetCommand extends Command
 {
@@ -70,29 +70,11 @@ class ModuleMigrateResetCommand extends Command
             return;
         }
 
-        $slug = $this->argument('slug');
-
-        if (!empty($slug)) {
-            if ($this->module->isEnabled($slug)) {
-                return $this->reset($slug);
-            } elseif ($this->option('force')) {
-                return $this->reset($slug);
-            }
-        } else {
-            if ($this->option('force')) {
-                $modules = $this->module->all()->reverse();
-            } else {
-                $modules = $this->module->enabled()->reverse();
-            }
-
-            foreach ($modules as $module) {
-                $this->reset($module['slug']);
-            }
-        }
+        $this->reset();
     }
 
     /**
-     * Run the migration reset for the specified module.
+     * Run the migration reset for the current list of slugs.
      *
      * Migrations should be reset in the reverse order that they were
      * migrated up as. This ensures the database is properly reversed
@@ -102,21 +84,30 @@ class ModuleMigrateResetCommand extends Command
      *
      * @return mixed
      */
-    protected function reset($slug)
+    protected function reset()
     {
         $this->migrator->setconnection($this->input->getOption('database'));
 
-        $pretend = $this->input->getOption('pretend');
-        $migrationPath = $this->getMigrationPath($slug);
-        $migrations = array_reverse($this->migrator->getMigrationFiles($migrationPath));
+        $files = $this->migrator->getMigrationFiles($this->getMigrationPaths());
 
-        if (count($migrations) == 0) {
-            return $this->error('Nothing to rollback.');
+        $migrations = array_reverse($this->migrator->getRepository()->getRan());
+
+        if(count($migrations) == 0){
+            $this->output("Nothing to rollback.");
+        } else {
+            $this->migrator->requireFiles($files);
+
+            foreach($migrations as $migration){
+                if(!array_key_exists($migration, $files)){
+                    continue;
+                }
+
+                $this->runDown($files[$migration], (object) ["migration" => $migration]);
+            }
         }
 
-        foreach ($migrations as $migration) {
-            $this->info('Migration: '.$migration);
-            $this->runDown($slug, $migration, $pretend);
+        foreach($this->migrator->getNotes() as $note){
+            $this->output->writeln($note);
         }
     }
 
@@ -127,22 +118,74 @@ class ModuleMigrateResetCommand extends Command
      * @param object $migration
      * @param bool   $pretend
      */
-    protected function runDown($slug, $migration, $pretend)
+    protected function runDown($file, $migration)
     {
-        $migrationPath = $this->getMigrationPath($slug);
-        $file = (string) $migrationPath.'/'.$migration.'.php';
-        $classFile = implode('_', array_slice(explode('_', basename($file, '.php')), 4));
-        $class = studly_case($classFile);
-        $table = $this->laravel['config']['database.migrations'];
+        $file = $this->migrator->getMigrationName($file);
 
-        include $file;
+        $instance = $this->migrator->resolve($file);
 
-        $instance = new $class();
         $instance->down();
 
-        $this->laravel['db']->table($table)
-            ->where('migration', $migration)
-            ->delete();
+        $this->migrator->getRepository()->delete($migration);
+
+        $this->info("Rolledback: ".$file);
+    }
+
+    /**
+     * Generate a list of all migration paths, given the arguments/operations supplied.
+     *
+     * @return array
+     */
+    protected function getMigrationPaths(){
+        $migrationPaths = [];
+
+        foreach ($this->getSlugsToReset() as $slug) {
+            $migrationPaths[] = $this->getMigrationPath($slug);
+
+            event($slug.'.module.reset', [$this->module, $this->option()]);
+        }
+
+        return $migrationPaths;
+    }
+
+    /**
+     * Using the arguments, generate a list of slugs to reset the migrations for.
+     *
+     * @return array
+     */
+    protected function getSlugsToReset(){
+        if($this->validSlugProvided()){
+            return [$this->argument("slug")];
+        }
+
+        if($this->option("force")){
+            return $this->module->all()->pluck("slug");
+        }
+
+        return $this->module->enabled()->pluck("slug");
+    }
+
+    /**
+     * Determine if a valid slug has been provided as an argument.
+     *
+     * We will accept a slug as long as it is not empty and is enalbed (or force is passed).
+     *
+     * @return bool
+     */
+    protected function validSlugProvided(){
+        if(empty($this->argument("slug"))){
+            return false;
+        }
+
+        if($this->module->isEnabled($this->argument("slug"))){
+            return true;
+        }
+
+        if($this->option("force")){
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -180,9 +223,7 @@ class ModuleMigrateResetCommand extends Command
      */
     protected function getMigrationPath($slug)
     {
-        $path = $this->module->getModulePath($slug).'Database/Migrations';
-
-        return $path;
+        return module_path($slug, 'Database/Migrations');
     }
 
     /**

@@ -30,9 +30,9 @@ class IdentifyModule
      *
      * @return mixed
      */
-    public function handle($request, Closure $next, $slug)
+    public function handle($request, Closure $next, $slug = null)
     {
-        $request->session()->put('module', $this->module->where('slug', $slug)->first());
+        $request->session()->flash('module', $this->module->where('slug', $slug));
 
         return $next($request);
     }

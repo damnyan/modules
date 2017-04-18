@@ -2,11 +2,11 @@
 
 namespace Caffeinated\Modules\Repositories;
 
-use Caffeinated\Modules\Contracts\RepositoryInterface;
+use Caffeinated\Modules\Contracts\Repository as RepositoryContract;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Filesystem\Filesystem;
 
-abstract class Repository implements RepositoryInterface
+abstract class Repository implements RepositoryContract
 {
     /**
      * @var \Illuminate\Config\Repository
@@ -53,7 +53,7 @@ abstract class Repository implements RepositoryInterface
 
             return $basenames;
         } catch (\InvalidArgumentException $e) {
-            return collect(array());
+            return collect([]);
         }
     }
 
@@ -67,15 +67,12 @@ abstract class Repository implements RepositoryInterface
     public function getManifest($slug)
     {
         if (!is_null($slug)) {
-            $module = studly_case($slug);
-            $path = $this->getManifestPath($module);
+            $path = $this->getManifestPath($slug);
             $contents = $this->files->get($path);
             $collection = collect(json_decode($contents, true));
 
             return $collection;
         }
-
-        return;
     }
 
     /**
@@ -111,15 +108,19 @@ abstract class Repository implements RepositoryInterface
      */
     public function getModulePath($slug)
     {
-        $module = studly_case($slug);
+        $module = studly_case(str_slug($slug));
 
-        return $this->getPath()."/{$module}/";
+        if (\File::exists($this->getPath()."/{$module}/")) {
+            return $this->getPath()."/{$module}/";
+        }
+
+        return $this->getPath()."/{$slug}/";
     }
 
     /**
      * Get path of module manifest file.
      *
-     * @param string $module
+     * @param $slug
      *
      * @return string
      */

@@ -2,7 +2,9 @@
 
 namespace Caffeinated\Modules\Console\Generators;
 
-class MakeRequestCommand extends MakeCommand
+use Caffeinated\Modules\Console\GeneratorCommand;
+
+class MakeRequestCommand extends GeneratorCommand
 {
     /**
      * The name and signature of the console command.
@@ -11,87 +13,41 @@ class MakeRequestCommand extends MakeCommand
      */
     protected $signature = 'make:module:request
     	{slug : The slug of the module.}
-    	{name : The name of the request class.}';
+    	{name : The name of the form request class.}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new module request class';
+    protected $description = 'Create a new module form request class';
 
     /**
      * String to store the command type.
      *
      * @var string
      */
-    protected $type = 'Request';
+    protected $type = 'Module request';
 
     /**
-     * Module folders to be created.
-     *
-     * @var array
-     */
-    protected $listFolders = [
-        'Http/Requests/',
-    ];
-
-    /**
-     * Module files to be created.
-     *
-     * @var array
-     */
-    protected $listFiles = [
-        '{{filename}}.php',
-    ];
-
-    /**
-     * Module stubs used to populate defined files.
-     *
-     * @var array
-     */
-    protected $listStubs = [
-        'default' => [
-            'request.stub',
-        ],
-    ];
-
-    /**
-     * Resolve Container after getting file path.
-     *
-     * @param string $FilePath
-     *
-     * @return array
-     */
-    protected function resolveByPath($filePath)
-    {
-        $this->container['filename'] = $this->makeFileName($filePath);
-        $this->container['namespace'] = $this->getNamespace($filePath);
-        $this->container['path'] = $this->getBaseNamespace();
-        $this->container['classname'] = basename($filePath);
-    }
-
-    /**
-     * Replace placeholder text with correct values.
+     * Get the stub file for the generator.
      *
      * @return string
      */
-    protected function formatContent($content)
+    protected function getStub()
     {
-        return str_replace(
-            [
-                '{{filename}}',
-                '{{path}}',
-                '{{namespace}}',
-                '{{classname}}',
-            ],
-            [
-                $this->container['filename'],
-                $this->container['path'],
-                $this->container['namespace'],
-                $this->container['classname'],
-            ],
-            $content
-        );
+        return __DIR__.'/stubs/request.stub';
+    }
+
+    /**
+     * Get the default namespace for the class.
+     *
+     * @param string $rootNamespace
+     *
+     * @return string
+     */
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return module_class($this->argument('slug'), 'Http\\Requests');
     }
 }

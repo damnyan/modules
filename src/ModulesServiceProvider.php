@@ -2,6 +2,12 @@
 
 namespace Caffeinated\Modules;
 
+use Caffeinated\Modules\Contracts\Repository;
+use Caffeinated\Modules\Providers\BladeServiceProvider;
+use Caffeinated\Modules\Providers\ConsoleServiceProvider;
+use Caffeinated\Modules\Providers\GeneratorServiceProvider;
+use Caffeinated\Modules\Providers\HelperServiceProvider;
+use Caffeinated\Modules\Providers\RepositoryServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
 class ModulesServiceProvider extends ServiceProvider
@@ -20,9 +26,7 @@ class ModulesServiceProvider extends ServiceProvider
             __DIR__.'/../config/modules.php' => config_path('modules.php'),
         ], 'config');
 
-        $modules = $this->app['modules'];
-
-        $modules->register();
+        $this->app['modules']->register();
     }
 
     /**
@@ -34,18 +38,16 @@ class ModulesServiceProvider extends ServiceProvider
             __DIR__.'/../config/modules.php', 'modules'
         );
 
-        $this->app->register('Caffeinated\Modules\Providers\RepositoryServiceProvider');
-
-        $this->app->register('Caffeinated\Modules\Providers\MigrationServiceProvider');
-
-        $this->app->register('Caffeinated\Modules\Providers\ConsoleServiceProvider');
-
-        $this->app->register('Caffeinated\Modules\Providers\GeneratorServiceProvider');
+        $this->app->register(ConsoleServiceProvider::class);
+        $this->app->register(GeneratorServiceProvider::class);
+        $this->app->register(HelperServiceProvider::class);
+        $this->app->register(RepositoryServiceProvider::class);
+        $this->app->register(BladeServiceProvider::class);
 
         $this->app->singleton('modules', function ($app) {
-            $repository = $app->make('Caffeinated\Modules\Contracts\RepositoryInterface');
+            $repository = $app->make(Repository::class);
 
-            return new \Caffeinated\Modules\Modules($app, $repository);
+            return new Modules($app, $repository);
         });
     }
 
@@ -57,5 +59,21 @@ class ModulesServiceProvider extends ServiceProvider
     public function provides()
     {
         return ['modules'];
+    }
+
+    public static function compiles()
+    {
+        $modules = app()->make('modules')->all();
+        $files = [];
+
+        foreach ($modules as $module) {
+            $serviceProvider = module_class($module['slug'], 'Providers\\ModuleServiceProvider');
+
+            if (class_exists($serviceProvider)) {
+                $files = array_merge($files, forward_static_call([$serviceProvider, 'compiles']));
+            }
+        }
+
+        return array_map('realpath', $files);
     }
 }

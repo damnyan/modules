@@ -2,14 +2,13 @@
 
 namespace Caffeinated\Modules\Console\Commands;
 
-use App;
 use Caffeinated\Modules\Modules;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Arr;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class ModuleMigrateCommand extends Command
 {
@@ -63,7 +62,7 @@ class ModuleMigrateCommand extends Command
         $this->prepareDatabase();
 
         if (!empty($this->argument('slug'))) {
-            $module = $this->module->where('slug', $this->argument('slug'))->first();
+            $module = $this->module->where('slug', $this->argument('slug'));
 
             if ($this->module->isEnabled($module['slug'])) {
                 return $this->migrate($module['slug']);
@@ -95,14 +94,14 @@ class ModuleMigrateCommand extends Command
     protected function migrate($slug)
     {
         if ($this->module->exists($slug)) {
+            $module = $this->module->where('slug', $slug);
             $pretend = Arr::get($this->option(), 'pretend', false);
+            $step = Arr::get($this->option(), 'step', false);
             $path = $this->getMigrationPath($slug);
 
-            if (floatval(App::version()) > 5.1) {
-                $pretend = ['pretend' => $pretend];
-            }
+            $this->migrator->run($path, ['pretend' => $pretend, 'step' => $step]);
 
-            $this->migrator->run($path, $pretend);
+            event($slug.'.module.migrated', [$module, $this->option()]);
 
             // Once the migrator has run we will grab the note output and send it out to
             // the console screen, since the migrator itself functions without having
@@ -133,9 +132,7 @@ class ModuleMigrateCommand extends Command
      */
     protected function getMigrationPath($slug)
     {
-        $path = $this->module->getModulePath($slug);
-
-        return $path.'Database/Migrations/';
+        return module_path($slug, 'Database/Migrations');
     }
 
     /**
@@ -146,7 +143,7 @@ class ModuleMigrateCommand extends Command
         $this->migrator->setConnection($this->option('database'));
 
         if (!$this->migrator->repositoryExists()) {
-            $options = array('--database' => $this->option('database'));
+            $options = ['--database' => $this->option('database')];
 
             $this->call('migrate:install', $options);
         }
@@ -174,6 +171,7 @@ class ModuleMigrateCommand extends Command
             ['force', null, InputOption::VALUE_NONE, 'Force the operation to run while in production.'],
             ['pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run.'],
             ['seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run.'],
+            ['step', null, InputOption::VALUE_NONE, 'Force the migrations to be run so they can be rolled back individually.'],
         ];
     }
 }
